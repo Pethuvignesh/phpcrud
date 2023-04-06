@@ -1,29 +1,24 @@
-name: Phpcrud
+name: Push-to-EC2
 
-on: [push]
+# Trigger deployment only on push to master branch
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
-
+  deploy:
+    name: Deploy to EC2 on main branch push
     runs-on: self-hosted
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16.x'
-    - name: Install npm dependencies
-      run: npm install
-    - name: Run build task
-      run: npm run build --if-present
-    - name: Deploy to Server
-      uses: easingthemes/ssh-deploy@main
-      env:
+      - name: Checkout the files
+        uses: actions/checkout@v3
+
+      - name: Deploy to Server 1
+        uses: easingthemes/ssh-deploy@main
+        env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "."
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.REMOTE_TARGET }}
-          EXCLUDE: "/dist/, /node_modules/"
